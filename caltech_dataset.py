@@ -17,9 +17,17 @@ def pil_loader(path):
 class Caltech(VisionDataset):
     def __init__(self, root, split='train', transform=None, target_transform=None):
         super(Caltech, self).__init__(root, transform=transform, target_transform=target_transform)
-
+        self.root = root
+        self.split_list = []
         self.split = split # This defines the split you are going to use
                            # (split files are called 'train.txt' and 'test.txt')
+        set_path = root.split("/")[0] + "/" + split +".txt"
+        with open(set_path) as fp:
+            for line in fp:
+                if line.split("/")[0] != "BACKGROUND_Google":
+                    self.split_list.append(line.rstrip('\n'))
+                
+        
 
         '''
         - Here you should implement the logic for reading the splits files and accessing elements
@@ -39,8 +47,10 @@ class Caltech(VisionDataset):
         Returns:
             tuple: (sample, target) where target is class_index of the target class.
         '''
-
-        image, label = ... # Provide a way to access image and label via index
+        path = self.root + "/" + self.split_list[index].rstrip("\n")
+        print(path)
+        image, label = pil_loader(path), self.split_list[index].split("/")[0]
+                            # Provide a way to access image and label via index
                            # Image should be a PIL Image
                            # label can be int
 
@@ -48,12 +58,12 @@ class Caltech(VisionDataset):
         if self.transform is not None:
             image = self.transform(image)
 
-        return image, label
+        return (image, label)
 
     def __len__(self):
         '''
         The __len__ method returns the length of the dataset
         It is mandatory, as this is used by several other components
         '''
-        length = ... # Provide a way to get the length (number of elements) of the dataset
+        length = len(self.split_list) # Provide a way to get the length (number of elements) of the dataset
         return length
