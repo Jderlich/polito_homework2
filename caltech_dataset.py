@@ -48,7 +48,6 @@ class Caltech(VisionDataset):
             tuple: (sample, target) where target is class_index of the target class.
         '''
         path = self.root + "/" + self.split_list[index].rstrip("\n")
-        print(path)
         image, label = pil_loader(path), self.split_list[index].split("/")[0]
                             # Provide a way to access image and label via index
                            # Image should be a PIL Image
@@ -58,7 +57,7 @@ class Caltech(VisionDataset):
         if self.transform is not None:
             image = self.transform(image)
 
-        return (image, label)
+        return image, label
 
     def __len__(self):
         '''
