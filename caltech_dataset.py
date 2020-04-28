@@ -25,7 +25,7 @@ class Caltech(VisionDataset):
         with open(set_path) as fp:
             self.class_path_list = [line.rstrip('\n') for line in fp if line.split("/")[0] != "BACKGROUND_Google" ]
             self.label_set = np.unique(np.array([path.split("/")[0] for path in self.class_path_list])).tolist()
-            self.image_label = [(pil_loader(self.root + "/" + path.rstrip("\n")), self.label_set.index(path)) for path in self.class_path_list ]
+            self.image_label = [(pil_loader(self.root + "/" + path.rstrip("\n")), self.label_set.index(path.split("/")[0])) for path in self.class_path_list ]
                 
         
 
