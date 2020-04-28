@@ -5,6 +5,7 @@ from PIL import Image
 import os
 import os.path
 import sys
+import numpy as np
 
 
 def pil_loader(path):
@@ -18,14 +19,13 @@ class Caltech(VisionDataset):
     def __init__(self, root, split='train', transform=None, target_transform=None):
         super(Caltech, self).__init__(root, transform=transform, target_transform=target_transform)
         self.root = root
-        self.split_list = []
         self.split = split # This defines the split you are going to use
                            # (split files are called 'train.txt' and 'test.txt')
         set_path = root.split("/")[0] + "/" + split +".txt"
         with open(set_path) as fp:
-            for line in fp:
-                if line.split("/")[0] != "BACKGROUND_Google":
-                    self.split_list.append(line.rstrip('\n'))
+            self.class_path_list = [line.rstrip('\n') for line in fp if line.split("/")[0] != "BACKGROUND_Google" ]
+            self.label_set = np.unique(np.array([path.split("/")[0] for path in self.class_path_list])).tolist()
+            self.image_label = [(pil_loader(self.root + "/" + path.rstrip("\n")), self.label_set.index(path)) for path in self.class_path_list ]
                 
         
 
@@ -47,8 +47,8 @@ class Caltech(VisionDataset):
         Returns:
             tuple: (sample, target) where target is class_index of the target class.
         '''
-        path = self.root + "/" + self.split_list[index].rstrip("\n")
-        image, label = pil_loader(path), self.split_list[index].split("/")[0]
+        path = self.root + "/" + self.class_path_list[index].rstrip("\n")
+        image, label = self.image_label[index]
                             # Provide a way to access image and label via index
                            # Image should be a PIL Image
                            # label can be int
@@ -64,5 +64,5 @@ class Caltech(VisionDataset):
         The __len__ method returns the length of the dataset
         It is mandatory, as this is used by several other components
         '''
-        length = len(self.split_list) # Provide a way to get the length (number of elements) of the dataset
+        length = len(self.class_path_list) # Provide a way to get the length (number of elements) of the dataset
         return length
